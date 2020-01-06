@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # generate word cloud from movie subtitle file
-# import re
+import re
 import pysrt
-#import matplotlib.pyplot as pPlot
-#from wordcloud import WordCloud
+import os
+from os import path
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 #import numpy as npy
 #from PIL import Image
+
+d = path.dirname(__file__) if "__file__" in locals() else os.getcwd()
 
 # custom class to keep the top word results for given film
 # 	contents: list[15] (words), list[15] (word's count), both sorted from highest to lowest
@@ -24,6 +28,9 @@ print(stops)
 
 # film word list dictionary
 movieWords = {}
+
+def black_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+	return "hsl(0, 0%, 0%)"
 
 def toText(subt): 	# function to convert srt file to a text file, in 'sub-out.txt', also cleans the 
 					# the text for indexing
@@ -81,6 +88,39 @@ def dictUpdate(line):
 	words = line.split()	
 
 toText(subs)
+
+# generate wordcloud
+dataset = open('sub-out.txt').read()
+
+wordcloud = WordCloud(background_color = 'white',
+						max_words = 25,
+						width = 1200,
+						height = 1000,
+						collocations=False).generate(dataset)
+
+# generate wordcloud image
+plt.imshow(wordcloud.recolor(color_func=black_color_func, random_state=3), interpolation="bilinear")
+plt.axis('off')
+plt.show()
+
+wordcloud.to_file('output.png')
+
+#plt.imshow(wordcloud, interpolation='bilinear')
+#plt.axis("off")
+
+#wordcloud = WordCloud(max_font_size=40).generate(dataset)
+#plt.figure()
+#plt.imshow(wordcloud, interpolation="bilinear")
+#plt.axis("off")
+#plt.show()
+
+#def create_word_cloud(string):
+#	maskArray = npy.array(Image.open("cloud.png"))
+#	cloud = WordCloud(background_color = "white", max_words = 25, mask = maskArray)
+#	cloud.generate(string)
+#	cloud.to_file("wordCloud.png")
+#dataset=dataset.lower()
+#create_word_cloud(dataset)
 
 #for key in sorted(movieWords):
 	#print("%s: %s" % (key, movieWords[key]))
